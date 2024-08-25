@@ -2,6 +2,7 @@ import { app, shell, BrowserWindow, ipcMain } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
+import { spawn } from 'node:child_process'
 
 function createWindow(): void {
   // Create the browser window.
@@ -50,7 +51,34 @@ app.whenReady().then(() => {
   })
 
   // IPC test
-  ipcMain.on('ping', () => console.log('pong'))
+  ipcMain.on('rebase', async () => {
+    console.log('rebasing...')
+    const child = await spawn('rpm-ostree', [
+      'rebase',
+      'ostree-unverified-registry:ghcr.io/wayblueorg/wayfire'
+    ])
+    child.stdout.on('data', (data) => {
+      console.log(`stdout: ${data}`)
+    })
+    child.stderr.on('data', (data) => {
+      console.log(`stderr: ${data}`)
+    })
+    child.on('exit', (code) => {
+      console.log(`child process exited with code ${code}`)
+      console.log('done')
+    })
+  })
+
+  ipcMain.on('reboot', async () => {
+    console.log('rebooting...')
+    const child = await spawn('systemctl', ['reboot'])
+    child.stdout.on('data', (data) => {
+      console.log(`stdout: ${data}`)
+    })
+    child.stderr.on('data', (data) => {
+      console.log(`stderr: ${data}`)
+    })
+  })
 
   createWindow()
 
