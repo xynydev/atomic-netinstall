@@ -4,7 +4,7 @@ import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 import { spawn } from 'node:child_process'
 
-function createWindow(): void {
+function createWindow(): BrowserWindow {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
     width: 900,
@@ -34,6 +34,8 @@ function createWindow(): void {
   } else {
     mainWindow.loadFile(join(__dirname, '../renderer/index.html'))
   }
+
+  return mainWindow
 }
 
 // This method will be called when Electron has finished
@@ -50,22 +52,25 @@ app.whenReady().then(() => {
     optimizer.watchWindowShortcuts(window)
   })
 
+  const mainWindow = createWindow()
+
   // IPC test
-  ipcMain.on('rebase', async () => {
-    console.log('rebasing...')
-    const child = await spawn('rpm-ostree', [
-      'rebase',
-      'ostree-unverified-registry:ghcr.io/wayblueorg/wayfire'
-    ])
+  ipcMain.on('rebase', async (_, image) => {
+    mainWindow.webContents.send('rebaseStatus', 'rebasing')
+    console.log(`rebasing to ${image}...`)
+    const child = await spawn('rpm-ostree', ['rebase', `ostree-unverified-registry:${image}`])
     child.stdout.on('data', (data) => {
-      console.log(`stdout: ${data}`)
+      mainWindow.webContents.send('rebaseLog', `${data}`)
+      console.log(`${data}`)
     })
     child.stderr.on('data', (data) => {
-      console.log(`stderr: ${data}`)
+      mainWindow.webContents.send('rebaseLog', `${data}`)
+      console.error(`${data}`)
     })
     child.on('exit', (code) => {
       console.log(`child process exited with code ${code}`)
       console.log('done')
+      mainWindow.webContents.send('rebaseStatus', 'done')
     })
   })
 
@@ -79,8 +84,6 @@ app.whenReady().then(() => {
       console.log(`stderr: ${data}`)
     })
   })
-
-  createWindow()
 
   app.on('activate', function () {
     // On macOS it's common to re-create a window in the app when the
