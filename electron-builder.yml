@@ -18,7 +18,7 @@ nsis:
   createDesktopShortcut: always
 linux:
   target:
-    - rpm
+    # - rpm # rpm causes install error with rpm-ostree
     - tar.xz
   maintainer: electronjs.org
   category: Utility
