@@ -12,4 +12,5 @@ FROM quay.io/fedora-ostree-desktops/base:${FEDORA_VERSION}
 COPY --from=builder /out/netinstall /usr/share/netinstall
 COPY netinstall-config.json /usr/share/netinstall/netinstall-config.json
 COPY imageroot /
-RUN rpm-ostree install cage && systemctl enable cage@tty7.service && systemctl set-default graphical.target && ostree container commit
+RUN curl -Lo /usr/bin/tuigreet https://github.com/apognu/tuigreet/releases/download/0.9.1/tuigreet-0.9.1-x86_64 && \
+    rpm-ostree install greetd cage && systemctl enable greetd && ostree container commit

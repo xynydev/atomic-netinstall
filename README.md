@@ -1,5 +1,7 @@
 # netinstall-poc
 
+TODO: Cage is not starting
+
 An Electron application with Svelte and TypeScript
 
 ## Recommended IDE Setup
