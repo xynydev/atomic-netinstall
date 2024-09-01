@@ -12,4 +12,4 @@ FROM quay.io/fedora-ostree-desktops/base:${FEDORA_VERSION}
 COPY --from=builder /out/netinstall /usr/share/netinstall
 COPY netinstall-config.json /usr/share/netinstall/netinstall-config.json
 COPY imageroot /
-RUN rpm-ostree install cage gdm && ostree container commit
+RUN rpm-ostree install cage && ostree container commit
