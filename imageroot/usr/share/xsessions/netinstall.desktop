@@ -1,0 +1,6 @@
+[Desktop Entry]
+Name=Netinstall
+Comment=Install a custom image from the internet
+Exec=/usr/bin/cage /usr/share/netinstall/netinstall-poc
+TryExec=/usr/bin/cage /usr/share/netinstall/netinstall-poc
+Type=Application
